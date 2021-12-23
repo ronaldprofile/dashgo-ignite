@@ -12,15 +12,20 @@ import {
   Tr,
   Td,
   Checkbox,
+  Spinner,
   useBreakpointValue
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { useUsers } from "../../services/hooks/useUsers";
+
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
 import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
 import { Pagination } from "../../components/Pagination";
 
 export default function UserList() {
+  const { data, isLoading, isFetching, error } = useUsers();
+
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true
@@ -36,6 +41,9 @@ export default function UserList() {
           <Flex mb="8" justify="space-between" align="center">
             <Heading size="lg" fontWeight="normal">
               Usuários
+              {!isLoading && isFetching && (
+                <Spinner size="sm" color="gray.500" ml="4" />
+              )}
             </Heading>
 
             <Link href="/users/create" passHref>
@@ -52,80 +60,72 @@ export default function UserList() {
             </Link>
           </Flex>
 
-          <Table colorScheme="whiteAlpha" width="100%">
-            <Thead>
-              <Tr>
-                <Th p={["4", "4", "6"]} color="gray.300" width="8">
-                  <Checkbox colorScheme="pink" />
-                </Th>
+          {isLoading ? (
+            <Flex justify="center">
+              <Spinner />
+            </Flex>
+          ) : error ? (
+            <Flex justify="center">
+              <Text>Falha ao obter os dados dos usuários</Text>
+            </Flex>
+          ) : (
+            <>
+              <Table colorScheme="whiteAlpha" width="100%">
+                <Thead>
+                  <Tr>
+                    <Th p={["4", "4", "6"]} color="gray.300" width="8">
+                      <Checkbox colorScheme="pink" />
+                    </Th>
 
-                <Th>Usuário</Th>
-                {isWideVersion && <Th>Data de cadastro</Th>}
-                <Th width="8">Ações</Th>
-              </Tr>
-            </Thead>
+                    <Th>Usuário</Th>
+                    {isWideVersion && <Th>Data de cadastro</Th>}
+                    <Th width="8">Ações</Th>
+                  </Tr>
+                </Thead>
 
-            <Tbody overflowX="auto">
-              <Tr>
-                <Td p={["4", "4", "6"]}>
-                  <Checkbox colorScheme="pink" />
-                </Td>
+                <Tbody overflowX="auto">
+                  {data.map(user => {
+                    return (
+                      <Tr key={user.id}>
+                        <Td p={["4", "4", "6"]}>
+                          <Checkbox colorScheme="pink" />
+                        </Td>
 
-                <Td>
-                  <Box>
-                    <Text fontWeight="bold">Ronald Tomaz</Text>
-                    <Text fontSize="small" color="gray.300">
-                      ronaldtomaz@gmail.com
-                    </Text>
-                  </Box>
-                </Td>
+                        <Td>
+                          <Box>
+                            <Text fontWeight="bold">{user.name}</Text>
+                            <Text fontSize="small" color="gray.300">
+                              {user.email}
+                            </Text>
+                          </Box>
+                        </Td>
 
-                {isWideVersion && <Td>02 de Março, 2020</Td>}
-                <Td>
-                  <Button
-                    as="a"
-                    size="sm"
-                    fontSize="sm"
-                    colorScheme="purple"
-                    leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                    cursor="pointer"
-                  >
-                    Editar
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td p={["4", "4", "6"]}>
-                  <Checkbox colorScheme="pink" />
-                </Td>
+                        {isWideVersion && <Td>{user.createdAt}</Td>}
+                        <Td>
+                          <Button
+                            as="a"
+                            size="sm"
+                            fontSize="sm"
+                            colorScheme="purple"
+                            leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
+                            cursor="pointer"
+                          >
+                            Editar
+                          </Button>
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+              </Table>
 
-                <Td>
-                  <Box>
-                    <Text fontWeight="bold">Cristiano Ronaldo</Text>
-                    <Text fontSize="small" color="gray.300">
-                      cr7@gmail.com
-                    </Text>
-                  </Box>
-                </Td>
-
-                {isWideVersion && <Td>02 de Março, 2020</Td>}
-                <Td>
-                  <Button
-                    as="a"
-                    size="sm"
-                    fontSize="sm"
-                    colorScheme="purple"
-                    leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                    cursor="pointer"
-                  >
-                    Editar
-                  </Button>
-                </Td>
-              </Tr>
-            </Tbody>
-          </Table>
-
-          <Pagination />
+              <Pagination
+                totalCountOfRegister={200}
+                currentPage={5}
+                onChangePage={() => {}}
+              />
+            </>
+          )}
         </Box>
       </Flex>
     </Box>
