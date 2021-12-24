@@ -15,6 +15,7 @@ import {
   Spinner,
   useBreakpointValue
 } from "@chakra-ui/react";
+import { useState } from "react";
 import Link from "next/link";
 import { useUsers } from "../../services/hooks/useUsers";
 
@@ -24,7 +25,8 @@ import { Header } from "../../components/Header";
 import { Pagination } from "../../components/Pagination";
 
 export default function UserList() {
-  const { data, isLoading, isFetching, error } = useUsers();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading, isFetching, error } = useUsers(currentPage);
 
   const isWideVersion = useBreakpointValue({
     base: false,
@@ -84,7 +86,7 @@ export default function UserList() {
                 </Thead>
 
                 <Tbody overflowX="auto">
-                  {data.map(user => {
+                  {data.users.map(user => {
                     return (
                       <Tr key={user.id}>
                         <Td p={["4", "4", "6"]}>
@@ -120,9 +122,9 @@ export default function UserList() {
               </Table>
 
               <Pagination
-                totalCountOfRegister={200}
-                currentPage={5}
-                onChangePage={() => {}}
+                totalCountOfRegister={data.totalCount}
+                currentPage={currentPage}
+                onChangePage={setCurrentPage}
               />
             </>
           )}
